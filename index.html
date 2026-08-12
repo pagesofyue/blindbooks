@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libreria ni Yue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Space+Mono:wght@400;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --ink:#1C2333;
+    --ink-deep:#12172400;
+    --kraft:#C9AD82;
+    --kraft-light:#E4D3B4;
+    --kraft-dark:#a98a5c;
+    --wax:#9E2B25;
+    --wax-bright:#c23a30;
+    --twine:#6B7048;
+    --parchment:#F5EFE0;
+    --charcoal:#2A2118;
+    --line: rgba(245,239,224,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #232c42 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #202a3d 0%, transparent 55%),
+      var(--ink);
+    color:var(--parchment);
+    font-family:'Public Sans', sans-serif;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- header / hero ---------- */
+  header.hero{
+    padding:56px 6vw 40px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-top{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap;
+  }
+  .brand-mark{display:flex; align-items:center; gap:14px;}
+  .seal-logo{
+    width:52px; height:52px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--wax-bright), var(--wax) 60%, #6e1a15 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:700; font-size:22px; color:var(--parchment);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35), inset 0 2px 3px rgba(255,255,255,0.25);
+    flex-shrink:0;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(2.1rem, 4.5vw, 3.4rem);
+    margin:0;
+    letter-spacing:-0.01em;
+    line-height:1.02;
+  }
+  h1.title em{font-style:italic; color:var(--kraft-light); font-weight:500;}
+  .tagline{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:500;
+    color:var(--kraft-light); font-size:1.05rem; margin:8px 0 0 66px; opacity:0.9;
+  }
+  .hero-note{
+    max-width:340px; font-size:0.85rem; line-height:1.55; color:rgba(245,239,224,0.65);
+    border-left:2px solid var(--wax); padding-left:14px;
+  }
+  .stamp-strip{
+    display:flex; gap:10px; margin-top:32px; flex-wrap:wrap;
+  }
+  .stamp{
+    font-family:'Space Mono', monospace; font-size:0.72rem; letter-spacing:0.04em;
+    border:1px solid var(--line); border-radius:100px; padding:6px 14px;
+    color:rgba(245,239,224,0.75); text-transform:uppercase;
+  }
+
+  /* ---------- controls / sorter ---------- */
+  .controls{
+    padding:26px 6vw; display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+    border-bottom:1px solid var(--line);
+    background:rgba(0,0,0,0.14);
+    position:sticky; top:0; z-index:20;
+    backdrop-filter: blur(10px);
+  }
+  .control-group{display:flex; flex-direction:column; gap:5px;}
+  .control-group label{
+    font-family:'Space Mono', monospace; font-size:0.65rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--kraft-light); opacity:0.8;
+  }
+  select, input[type="search"]{
+    background:var(--charcoal); color:var(--parchment);
+    border:1px solid var(--line); border-radius:6px;
+    padding:9px 12px; font-family:'Public Sans', sans-serif; font-size:0.88rem;
+    min-width:160px; cursor:pointer;
+  }
+  input[type="search"]{cursor:text; min-width:200px;}
+  select:focus, input:focus{outline:2px solid var(--wax-bright); outline-offset:1px;}
+  .result-count{
+    margin-left:auto; font-family:'Space Mono', monospace; font-size:0.78rem;
+    color:rgba(245,239,224,0.6);
+  }
+  .clear-btn{
+    background:transparent; border:1px solid var(--line); color:var(--parchment);
+    border-radius:6px; padding:9px 14px; font-size:0.8rem; cursor:pointer;
+    font-family:'Public Sans', sans-serif; align-self:flex-end;
+  }
+  .clear-btn:hover{border-color:var(--wax-bright); color:var(--wax-bright);}
+
+  /* ---------- grid ---------- */
+  main{padding:36px 6vw 80px;}
+  .status-msg{
+    font-family:'Fraunces', serif; font-style:italic; font-size:1.1rem;
+    color:rgba(245,239,224,0.6); text-align:center; padding:60px 20px;
+  }
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr));
+    gap:26px;
+  }
+  .parcel-card{
+    background:transparent; border:none; padding:0; cursor:pointer;
+    text-align:left; color:inherit; font:inherit;
+    display:flex; flex-direction:column; gap:10px;
+    animation:rise 0.5s ease both;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .cover-wrap{
+    position:relative; aspect-ratio:3/4.2; border-radius:4px; overflow:hidden;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .parcel-card:hover .cover-wrap{ transform:translateY(-4px); box-shadow:0 16px 30px rgba(0,0,0,0.45); }
+  .parcel-card:focus-visible .cover-wrap{ outline:2px solid var(--wax-bright); outline-offset:3px; }
+
+  .tier-badge{
+    position:absolute; top:8px; left:8px; z-index:5;
+    background:var(--wax); color:var(--parchment);
+    font-family:'Space Mono', monospace; font-weight:700; font-size:0.7rem;
+    padding:5px 9px; border-radius:3px; letter-spacing:0.03em;
+    box-shadow:0 2px 5px rgba(0,0,0,0.4);
+  }
+  .price-badge{
+    position:absolute; bottom:8px; right:8px; z-index:5;
+    background:rgba(18,23,36,0.82); color:var(--kraft-light);
+    font-family:'Space Mono', monospace; font-size:0.72rem; font-weight:700;
+    padding:5px 9px; border-radius:3px;
+  }
+  .sold-flag{
+    position:absolute; top:8px; right:8px; z-index:5;
+    background:var(--twine); color:var(--parchment);
+    font-family:'Space Mono', monospace; font-size:0.62rem; letter-spacing:0.06em;
+    padding:4px 8px; border-radius:3px; text-transform:uppercase;
+  }
+
+  /* wrapped (available/hidden) look */
+  .wrapped{
+    width:100%; height:100%;
+    background: repeating-linear-gradient(135deg, var(--kraft) 0 14px, var(--kraft-dark) 14px 28px);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .wrapped::before, .wrapped::after{
+    content:""; position:absolute; background:rgba(42,33,24,0.55);
+  }
+  .wrapped::before{ top:0; bottom:0; left:calc(50% - 4px); width:8px; } /* vertical twine */
+  .wrapped::after{ left:0; right:0; top:calc(50% - 4px); height:8px; } /* horizontal twine */
+  .wax-seal{
+    width:46px; height:46px; border-radius:50%; z-index:2;
+    background: radial-gradient(circle at 35% 30%, var(--wax-bright), var(--wax) 55%, #6e1a15 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:700; font-size:1rem; color:var(--parchment);
+    box-shadow:0 3px 6px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.25);
+  }
+  .cover-photo{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .card-meta{ display:flex; flex-direction:column; gap:3px; padding:0 2px; }
+  .genre-tag{
+    font-family:'Space Mono', monospace; font-size:0.68rem; letter-spacing:0.04em;
+    color:var(--kraft-light); text-transform:uppercase;
+  }
+  .synopsis-preview{
+    font-size:0.8rem; color:rgba(245,239,224,0.55); line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(10,13,20,0.78);
+    display:flex; align-items:center; justify-content:center; padding:24px; z-index:100;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .overlay.open{opacity:1; pointer-events:auto;}
+  .modal{
+    background:var(--charcoal); border-radius:10px; max-width:820px; width:100%;
+    max-height:88vh; overflow-y:auto; position:relative;
+    border:1px solid rgba(245,239,224,0.1);
+    transform:translateY(14px) scale(0.98); transition:transform 0.25s ease;
+    box-shadow:0 30px 60px rgba(0,0,0,0.5);
+  }
+  .overlay.open .modal{ transform:translateY(0) scale(1); }
+  .modal-close{
+    position:absolute; top:14px; right:14px; z-index:10;
+    background:rgba(0,0,0,0.4); border:none; color:var(--parchment);
+    width:34px; height:34px; border-radius:50%; font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{background:var(--wax);}
+  .modal-body{ display:grid; grid-template-columns:1fr 1.3fr; gap:0; }
+  @media (max-width:640px){ .modal-body{ grid-template-columns:1fr; } }
+  .modal-cover-col{ padding:28px; display:flex; flex-direction:column; gap:14px; background:rgba(0,0,0,0.18); }
+  .modal-cover{ width:100%; aspect-ratio:3/4.2; border-radius:6px; overflow:hidden; position:relative; box-shadow:0 12px 26px rgba(0,0,0,0.4); }
+  .modal-genre{ font-family:'Space Mono', monospace; font-size:0.72rem; letter-spacing:0.05em; color:var(--kraft-light); text-transform:uppercase; }
+  .modal-tier-price{ font-family:'Space Mono', monospace; font-size:0.78rem; color:rgba(245,239,224,0.7); }
+  .modal-text-col{ padding:32px 34px; display:flex; flex-direction:column; gap:16px; }
+  .modal-status{
+    font-family:'Space Mono', monospace; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase;
+    width:fit-content; padding:5px 10px; border-radius:3px;
+  }
+  .modal-status.available{ background:rgba(107,112,72,0.25); color:#b9c19b; border:1px solid var(--twine); }
+  .modal-status.sold{ background:rgba(158,43,37,0.2); color:#e08a84; border:1px solid var(--wax); }
+  .modal-title{ font-family:'Fraunces', serif; font-weight:600; font-size:1.7rem; margin:0; line-height:1.1; }
+  .modal-author{ font-family:'Fraunces', serif; font-style:italic; color:var(--kraft-light); margin:0; font-size:1rem; }
+  .modal-locked-note{
+    font-family:'Fraunces', serif; font-style:italic; color:rgba(245,239,224,0.5); font-size:1rem; margin:0;
+  }
+  .modal-label{ font-family:'Space Mono', monospace; font-size:0.65rem; letter-spacing:0.08em; color:rgba(245,239,224,0.45); text-transform:uppercase; margin:6px 0 -8px; }
+  .modal-synopsis{ font-size:0.94rem; line-height:1.65; color:rgba(245,239,224,0.85); margin:0; }
+  .modal-note{ font-size:0.8rem; line-height:1.5; color:rgba(245,239,224,0.5); border-left:2px solid var(--kraft-dark); padding-left:12px; margin-top:4px; }
+
+  footer{
+    padding:30px 6vw 50px; text-align:center; font-family:'Space Mono', monospace;
+    font-size:0.72rem; color:rgba(245,239,224,0.35); border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-top">
+    <div>
+      <div class="brand-mark">
+        <div class="seal-logo">Y</div>
+        <h1 class="title">Libreria <em>ni Yue</em></h1>
+      </div>
+      <p class="tagline">wrapped stories, unwrap your fate</p>
+    </div>
+    <p class="hero-note">Every parcel here is sealed on purpose. You'll know the genre, the price, and just enough of the story to be curious — the title and cover stay hidden until it's yours.</p>
+  </div>
+  <div class="stamp-strip">
+    <span class="stamp">Tier 0 · Free after 1st purchase</span>
+    <span class="stamp">Tier 1 · ₱75</span>
+    <span class="stamp">Tier 2 · ₱125</span>
+    <span class="stamp">Tier 3 · ₱150</span>
+    <span class="stamp">Tier 4 · ₱175</span>
+    <span class="stamp">Tier 5 · ₱200</span>
+    <span class="stamp">Tier 6 · Price varies</span>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label for="tierFilter">Tier</label>
+    <select id="tierFilter"><option value="all">All tiers</option></select>
+  </div>
+  <div class="control-group">
+    <label for="genreFilter">Genre</label>
+    <select id="genreFilter"><option value="all">All genres</option></select>
+  </div>
+  <div class="control-group">
+    <label for="availFilter">Availability</label>
+    <select id="availFilter">
+      <option value="all">All</option>
+      <option value="available">Still sealed</option>
+      <option value="sold">Sold / revealed</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label for="searchBox">Search synopsis / genre</label>
+    <input type="search" id="searchBox" placeholder="e.g. mystery, heist, slow burn...">
+  </div>
+  <button class="clear-btn" id="clearBtn">Clear filters</button>
+  <span class="result-count" id="resultCount"></span>
+</div>
+
+<main>
+  <div id="statusArea" class="status-msg">Fetching today's shelf...</div>
+  <div class="grid" id="grid" style="display:none;"></div>
+</main>
+
+<footer>LIBRERIA NI YUE · every seal broken is a story kept</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitleText">
+    <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-Tjk10l7gQa7Ho83Bv6mlvdGDD4OxDsNUcOENYMAaiAcZmM_AP6fyfb0GCIq1LNL3AXNlX8GIGeG2/pub?output=csv";
+
+const TIER_PRICE = {
+  "0": "Free*",
+  "1": "₱75",
+  "2": "₱125",
+  "3": "₱150",
+  "4": "₱175",
+  "5": "₱200",
+  "6": "Price varies"
+};
+
+let BOOKS = [];
+
+function norm(v){ return (v ?? "").toString().trim(); }
+
+function isSold(availability){
+  const a = norm(availability).toLowerCase();
+  return a.startsWith("sold");
+}
+
+function tierPriceLabel(tier){
+  const t = norm(tier);
+  return TIER_PRICE[t] || (t ? `Tier ${t}` : "—");
+}
+
+function findCoverUrl(row){
+  const candidates = ["CoverImage","Cover Image","Cover","CoverURL","Cover URL","Image","ImageURL"];
+  for(const key of candidates){
+    if(row[key] && norm(row[key])) return norm(row[key]);
+  }
+  return "";
+}
+
+async function loadBooks(){
+  try{
+    const res = await fetch(CSV_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("Sheet fetch failed: " + res.status);
+    const text = await res.text();
+    const parsed = Papa.parse(text, { header:true, skipEmptyLines:true });
+    BOOKS = parsed.data
+      .map((row, i) => ({
+        no: norm(row["No."]) || String(i+1),
+        title: norm(row["BookTitle"]),
+        author: norm(row["Author"]),
+        genre: norm(row["Genre"]) || "Unlabeled",
+        tier: norm(row["Tier"]),
+        synopsis: norm(row["Synopsis"]) || "No synopsis provided yet.",
+        availability: norm(row["Availability"]) || "Available",
+        notes: norm(row["Notes"]),
+        cover: findCoverUrl(row)
+      }))
+      .filter(b => b.genre || b.tier || b.synopsis);
+
+    if(BOOKS.length === 0){
+      showStatus("The shelf is empty right now. Check back soon.");
+      return;
+    }
+    populateFilters();
+    document.getElementById("statusArea").style.display = "none";
+    document.getElementById("grid").style.display = "grid";
+    render();
+  }catch(err){
+    console.error(err);
+    showStatus("Couldn't reach the shelf right now — the sheet may not be published, or your connection dropped. Try refreshing in a moment.");
+  }
+}
+
+function showStatus(msg){
+  const el = document.getElementById("statusArea");
+  el.textContent = msg;
+  el.style.display = "block";
+  document.getElementById("grid").style.display = "none";
+}
+
+function populateFilters(){
+  const tierSel = document.getElementById("tierFilter");
+  const genreSel = document.getElementById("genreFilter");
+
+  const tiers = [...new Set(BOOKS.map(b => b.tier).filter(Boolean))]
+    .sort((a,b) => Number(a) - Number(b));
+  tiers.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = `Tier ${t} · ${tierPriceLabel(t)}`;
+    tierSel.appendChild(opt);
+  });
+
+  const genres = [...new Set(BOOKS.map(b => b.genre).filter(Boolean))].sort();
+  genres.forEach(g => {
+    const opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = g;
+    genreSel.appendChild(opt);
+  });
+}
+
+function getFiltered(){
+  const tier = document.getElementById("tierFilter").value;
+  const genre = document.getElementById("genreFilter").value;
+  const avail = document.getElementById("availFilter").value;
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+
+  return BOOKS.filter(b => {
+    if(tier !== "all" && b.tier !== tier) return false;
+    if(genre !== "all" && b.genre !== genre) return false;
+    if(avail === "available" && isSold(b.availability)) return false;
+    if(avail === "sold" && !isSold(b.availability)) return false;
+    if(q && !(b.genre.toLowerCase().includes(q) || b.synopsis.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function coverMarkup(book, big){
+  const sold = isSold(book.availability);
+  if(sold){
+    if(book.cover){
+      return `<img class="cover-photo" src="${escapeAttr(book.cover)}" alt="Cover of ${escapeAttr(book.title || 'revealed book')}" loading="lazy" onerror="this.parentElement.innerHTML=fallbackWrap('${escapeAttr(book.tier)}',true);">`;
+    }
+    return fallbackWrap(book.tier, true);
+  }
+  return `<div class="wrapped"><div class="wax-seal">${escapeAttr(book.tier) || "?"}</div></div>`;
+}
+
+function fallbackWrap(tier, revealedButNoImage){
+  return `<div class="wrapped" style="background:repeating-linear-gradient(135deg, var(--kraft-light) 0 14px, var(--kraft) 14px 28px);"><div class="wax-seal" style="opacity:${revealedButNoImage ? 0.55 : 1}">${revealedButNoImage ? '📖' : (tier || '?')}</div></div>`;
+}
+
+function escapeAttr(str){
+  return (str ?? "").toString().replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+}
+
+function render(){
+  const grid = document.getElementById("grid");
+  const filtered = getFiltered();
+  document.getElementById("resultCount").textContent = `${filtered.length} book${filtered.length===1?'':'s'} on the shelf`;
+
+  if(filtered.length === 0){
+    grid.innerHTML = "";
+    showStatus("No books match that combination yet — try loosening a filter.");
+    return;
+  }
+  document.getElementById("statusArea").style.display = "none";
+  grid.style.display = "grid";
+
+  grid.innerHTML = filtered.map((b, idx) => {
+    const sold = isSold(b.availability);
+    return `
+    <button class="parcel-card" data-idx="${BOOKS.indexOf(b)}" style="animation-delay:${Math.min(idx*0.03,0.4)}s">
+      <div class="cover-wrap">
+        <span class="tier-badge">TIER ${escapeAttr(b.tier) || "?"}</span>
+        ${sold ? '<span class="sold-flag">Sold</span>' : ''}
+        ${coverMarkup(b)}
+        <span class="price-badge">${tierPriceLabel(b.tier)}</span>
+      </div>
+      <div class="card-meta">
+        <span class="genre-tag">${escapeAttr(b.genre)}</span>
+        <span class="synopsis-preview">${escapeAttr(b.synopsis)}</span>
+      </div>
+    </button>`;
+  }).join("");
+
+  grid.querySelectorAll(".parcel-card").forEach(card => {
+    card.addEventListener("click", () => openModal(Number(card.dataset.idx)));
+  });
+}
+
+function openModal(bookIndex){
+  const b = BOOKS[bookIndex];
+  const sold = isSold(b.availability);
+  const modalBody = document.getElementById("modalBody");
+
+  modalBody.innerHTML = `
+    <div class="modal-cover-col">
+      <div class="modal-cover">${coverMarkup(b, true)}</div>
+      <span class="modal-genre">${escapeAttr(b.genre)}</span>
+      <span class="modal-tier-price">Tier ${escapeAttr(b.tier) || "?"} · ${tierPriceLabel(b.tier)}</span>
+    </div>
+    <div class="modal-text-col">
+      <span class="modal-status ${sold ? 'sold' : 'available'}">${sold ? 'Sold — cover revealed' : 'Still sealed'}</span>
+      ${sold
+        ? `<h2 class="modal-title" id="modalTitleText">${escapeAttr(b.title) || "Untitled"}</h2>
+           <p class="modal-author">${b.author ? 'by ' + escapeAttr(b.author) : ''}</p>`
+        : `<h2 class="modal-title" id="modalTitleText">Title kept sealed</h2>
+           <p class="modal-locked-note">Author &amp; title reveal once this parcel is claimed.</p>`
+      }
+      <p class="modal-label">Official Synopsis</p>
+      <p class="modal-synopsis">${escapeAttr(b.synopsis)}</p>
+      ${b.notes ? `<p class="modal-note">${escapeAttr(b.notes)}</p>` : ''}
+    </div>
+  `;
+  document.getElementById("overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("modalCloseBtn").focus();
+}
+
+function closeModal(){
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+document.getElementById("overlay").addEventListener("click", (e) => {
+  if(e.target.id === "overlay") closeModal();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape") closeModal();
+});
+
+["tierFilter","genreFilter","availFilter"].forEach(id => {
+  document.getElementById(id).addEventListener("change", render);
+});
+document.getElementById("searchBox").addEventListener("input", debounce(render, 180));
+document.getElementById("clearBtn").addEventListener("click", () => {
+  document.getElementById("tierFilter").value = "all";
+  document.getElementById("genreFilter").value = "all";
+  document.getElementById("availFilter").value = "all";
+  document.getElementById("searchBox").value = "";
+  render();
+});
+
+function debounce(fn, ms){
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+loadBooks();
+</script>
+</body>
+</html>
