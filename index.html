@@ -188,6 +188,24 @@
     color:var(--purple); text-transform:uppercase; margin:4px 0 -4px; font-weight:700;
   }
   .modal-synopsis{ font-family:'Lora', serif; font-size:0.94rem; line-height:1.7; color:var(--ink-soft); margin:0; }
+  .reserve-block{ margin-top:8px; padding-top:16px; border-top:1px solid var(--brown-line); display:flex; flex-direction:column; gap:10px; }
+  .reserve-btn{
+    font-family:'Space Mono', monospace; font-size:0.78rem; font-weight:700; letter-spacing:0.02em;
+    background:var(--purple); color:#fff; border:none; border-radius:6px; padding:12px 16px;
+    cursor:pointer; text-align:center; text-decoration:none; display:block; text-transform:uppercase;
+  }
+  .reserve-btn:hover{ background:var(--purple-deep); }
+  .copy-code-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--purple-pale); border-radius:6px; padding:9px 12px;
+  }
+  .copy-code-row .ccode{ font-family:'Space Mono', monospace; font-size:0.82rem; font-weight:700; color:var(--purple-deep); }
+  .copy-btn{
+    font-family:'Space Mono', monospace; font-size:0.65rem; font-weight:700; color:var(--purple-deep);
+    background:none; border:1px solid var(--purple-deep); border-radius:100px; padding:4px 10px; cursor:pointer;
+  }
+  .copy-btn:hover{ background:var(--purple-deep); color:#fff; }
+  .reserve-hint{ font-family:'Lora', serif; font-size:0.78rem; color:var(--ink-soft); margin:0; }
 
   /* ---------- HOW IT WORKS (light, minimal, not a heavy dark block) ---------- */
   .how{ padding:56px 6vw; margin-top:40px; border-top:1px solid var(--brown-line); }
@@ -480,11 +498,34 @@ function openModal(bookIndex){
       }
       <p class="modal-label">Official Synopsis</p>
       <p class="modal-synopsis">${escapeAttr(b.synopsis)}</p>
+      ${!sold ? `
+      <div class="reserve-block">
+        <div class="copy-code-row">
+          <span class="ccode">${escapeAttr(b.code)}</span>
+          <button class="copy-btn" id="copyCodeBtn" data-code="${escapeAttr(b.code)}">Copy code</button>
+        </div>
+        <a class="reserve-btn" href="https://ig.me/m/pagesofyue" target="_blank" rel="noopener">Reserve on Instagram</a>
+        <p class="reserve-hint">Copy the code above and send it in your DM so we know exactly which one you mean.</p>
+      </div>` : ''}
     </div>
   `;
   document.getElementById("overlay").classList.add("open");
   document.body.style.overflow = "hidden";
   document.getElementById("modalCloseBtn").focus();
+
+  const copyBtn = document.getElementById("copyCodeBtn");
+  if(copyBtn){
+    copyBtn.addEventListener("click", () => {
+      const code = copyBtn.dataset.code;
+      navigator.clipboard?.writeText(code).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => { copyBtn.textContent = "Copy code"; }, 1500);
+      }).catch(() => {
+        copyBtn.textContent = "Copy failed";
+        setTimeout(() => { copyBtn.textContent = "Copy code"; }, 1500);
+      });
+    });
+  }
 }
 
 function closeModal(){
