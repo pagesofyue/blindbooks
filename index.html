@@ -131,18 +131,18 @@
   .card-top{ display:flex; justify-content:space-between; align-items:center; }
   .product-code{ font-family:'Space Mono', monospace; font-size:0.75rem; color:var(--purple); font-weight:700; }
   .tier-badge{
-    font-family:'Space Mono', monospace; font-size:0.6rem; font-weight:700;
-    color:var(--purple); border:1px solid var(--purple); padding:3px 8px; border-radius:100px;
+    font-family:'Space Mono', monospace; font-size:0.6rem; font-weight:700; letter-spacing:0.02em;
+    background:var(--purple); color:#fff; padding:4px 9px; border-radius:100px; text-transform:uppercase;
   }
   .teaser{
     font-family:'Lora', serif; font-size:0.9rem; line-height:1.55; color:var(--ink-soft);
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
   }
+  .card-divider{ border-top:1px dashed var(--brown-line); margin:2px 0; }
   .tag-row{ display:flex; flex-wrap:wrap; gap:6px; }
   .tag-genre{ font-family:'Space Mono', monospace; font-size:0.6rem; background:var(--chip-tan); color:var(--brown); padding:3px 8px; border-radius:100px; }
   .tag-trope{ font-family:'Space Mono', monospace; font-size:0.6rem; background:var(--purple-pale); color:var(--purple-deep); padding:3px 8px; border-radius:100px; }
-  .card-bottom{ display:flex; justify-content:space-between; align-items:center; margin-top:2px; padding-top:8px; border-top:1px solid var(--brown-line); }
-  .price-chip{ font-family:'Space Mono', monospace; font-size:0.78rem; font-weight:700; color:var(--brown); }
+  .card-bottom{ display:flex; justify-content:flex-end; align-items:center; margin-top:2px; padding-top:8px; border-top:1px solid var(--brown-line); }
   .view-btn{ font-family:'Space Mono', monospace; font-size:0.66rem; font-weight:700; color:var(--purple); background:none; border:none; cursor:pointer; }
   .sold-ribbon{ font-family:'Space Mono', monospace; font-size:0.6rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; }
 
@@ -438,12 +438,12 @@ function render(){
         <span class="tier-badge">Tier ${escapeAttr(b.tier) || "?"}</span>
       </div>
       <p class="teaser">${escapeAttr(b.synopsis)}</p>
+      <div class="card-divider"></div>
       <div class="tag-row">
         ${b.genres.map(g => `<span class="tag-genre">${escapeAttr(g)}</span>`).join("")}
         ${b.tropes.map(t => `<span class="tag-trope">${escapeAttr(t)}</span>`).join("")}
       </div>
       <div class="card-bottom">
-        ${tierInfo(b.tier).price ? `<span class="price-chip">${tierInfo(b.tier).price}</span>` : '<span></span>'}
         ${sold ? '<span class="sold-ribbon">Sold</span>' : '<span class="view-btn">View details →</span>'}
       </div>
     </button>`;
